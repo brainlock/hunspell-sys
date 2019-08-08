@@ -6,7 +6,16 @@ use std::process;
 use autotools;
 
 fn run() -> Result<(), Box<Error>> {
+    let target = std::env::var("TARGET").unwrap();
     let mut builder = bindgen::Builder::default();
+
+    let cpp_link = if target.contains("linux"){
+        "dylib=stdc++"
+    }else if target.contains("-apple-"){
+        "dylib=c++"
+    }else {
+        panic!("Unsupported target (for now?)");
+    };
 
     if pkg_config::probe_library("hunspell").is_err() {
         let dst = autotools::Config::new("vendor")
@@ -16,6 +25,8 @@ fn run() -> Result<(), Box<Error>> {
 
         println!("cargo:rustc-link-search=native={}", dst.join("lib").display());
         println!("cargo:rustc-link-lib=static=hunspell-1.7");
+
+        println!("cargo:rustc-link-lib={}", cpp_link);
 
         builder = builder.clang_arg(format!("-I{}", dst.join("include").display()));
     }
