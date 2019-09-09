@@ -5,14 +5,15 @@ use std::path::PathBuf;
 use autotools;
 
 fn main() -> Result<(), Box<dyn Error>> {
+    let target_os =
+        env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS should always be set");
+
     let mut builder = bindgen::Builder::default();
 
-    let libcpp = if cfg!(target_os = "macos") {
-        Some("dylib=c++")
-    } else if cfg!(target_os = "linux") {
-        Some("dylib=stdc++")
-    } else {
-        None
+    let libcpp = match target_os.as_ref() {
+        "macos" => Some("dylib=c++"),
+        "linux" => Some("dylib=stdc++"),
+        _ => None,
     };
 
     if pkg_config::probe_library("hunspell").is_err() {
