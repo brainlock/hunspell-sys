@@ -31,6 +31,18 @@ fn ios_target_config(
     Ok(())
 }
 
+fn android_target_config(
+    config: &mut autotools::Config,
+    target_triple: &str,
+) -> Result<(), Box<dyn Error>> {
+    let cc_var = format!("CARGO_TARGET_{}_CC", target_triple.to_ascii_uppercase().replace("-", "_"));
+    let cc = env::var(cc_var).expect("CARGO_TARGET_<triplet>_CC needs to be set");
+    let cxx = format!("{}++", cc);
+    config.env("CXX", cxx);
+    config.env("CC", cc);
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let target_os =
         env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS should always be set");
@@ -64,6 +76,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if target_os == "ios" {
             ios_target_config(&mut autoconf, &target_triple)?;
+        }
+
+        if target_os == "android" {
+            android_target_config(&mut autoconf, &target_triple)?;
         }
 
         // Avoid building the tools subdirectory. We don't need it, as we only need libhunspell,
