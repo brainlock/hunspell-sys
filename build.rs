@@ -60,7 +60,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     if pkg_config::probe_library("hunspell").is_err() {
         let mut autoconf = autotools::Config::new("vendor");
 
-        autoconf.reconf("-ivf").cxxflag("-fPIC");
+        autoconf.reconf("-iv").cxxflag("-fPIC");
 
         // We need to pass `--host` explicitly to the configure script. There is some confusion
         // going on in the `autotools` crate about these options: what we call `host` and `target`
