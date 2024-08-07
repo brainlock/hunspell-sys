@@ -17,7 +17,8 @@ fn build_static_hunspell() {
         .file("vendor/src/hunspell/replist.cxx")
         .file("vendor/src/hunspell/suggestmgr.cxx")
         .define("BUILDING_LIBHUNSPELL", "1")
-        .cpp(true);
+        .cpp(true)
+        .flag("-std=c++11");
 
     cpp_build.compile("hunspell-1.7");
 
